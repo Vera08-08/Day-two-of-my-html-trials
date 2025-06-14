@@ -1,0 +1,29 @@
+print("Welcome to ATM")
+print("1. check balance")
+print("2. deposit")
+print("3. withdraw")
+print("4. exit")
+
+def check_balance(self):
+    balance = self.atm.check_balance()
+    print(f"Your balance is {balance}")
+
+def deposit(self):
+    while True:
+        try:
+            amount = self.get_number("Enter the amount to deposit: ")
+            self.atm.deposit(amount)
+            print(f"Successfully deposited {amount}")
+            break
+        except ValueError as error:
+            print(error)
+
+def withdrawal(self):
+    while True:
+        try:
+            amount = self.get_number("Enter the amount to withdraw: ")
+            self.atm.withdraw(amount)
+            print(f"Successfully withdrew {amount}")
+            break
+        except ValueError as error:
+            print(error)

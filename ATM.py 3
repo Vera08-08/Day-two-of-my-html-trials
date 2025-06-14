@@ -1,0 +1,134 @@
+import sys
+import time
+
+# Simulated bank database: account_number -> {pin, balance}
+accounts_db = {
+    "123456789": {"pin": "1234", "balance": 1000.0},
+    "987654321": {"pin": "4321", "balance": 500.0},
+    "111122223": {"pin": "1111", "balance": 1200.0}
+}
+
+# Transaction log
+transaction_log = []
+
+def log_transaction(account, transaction_type, amount=0.0, target_account=None):
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    if target_account:
+        log_entry = f"{timestamp} - {transaction_type} - From: {account} To: {target_account} Amount: ${amount:.2f}"
+    else:
+        log_entry = f"{timestamp} - {transaction_type} - Account: {account} Amount: ${amount:.2f}"
+    transaction_log.append(log_entry)
+    print(f"[LOG] {log_entry}")
+
+def authenticate():
+    print("Welcome to the ATM!")
+    for attempt in range(3):
+        account = input("Enter your account number: ").strip()
+        pin = input("Enter your 4-digit PIN: ").strip()
+        user = accounts_db.get(account)
+        if user and user['pin'] == pin:
+            print("Authentication successful.\n")
+            return account
+        else:
+            print(f"Invalid account number or PIN. Attempts left: {2 - attempt}")
+    print("Too many failed attempts. Exiting.")
+    sys.exit()
+
+def show_menu():
+    print("\nPlease choose an option:")
+    print("1. Check Balance")
+    print("2. Deposit")
+    print("3. Withdraw")
+    print("4. Transfer")
+    print("5. View Transaction Log")
+    print("6. Exit")
+
+def check_balance(account):
+    balance = accounts_db[account]['balance']
+    print(f"Your current balance is: ${balance:.2f}")
+
+def deposit(account):
+    try:
+        amount = float(input("Enter amount to deposit: $"))
+        if amount <= 0:
+            print("Amount must be positive.")
+            return
+        accounts_db[account]['balance'] += amount
+        print(f"Deposited ${amount:.2f} successfully.")
+        log_transaction(account, "Deposit", amount)
+    except ValueError:
+        print("Invalid amount entered.")
+
+def withdraw(account):
+    try:
+        amount = float(input("Enter amount to withdraw: $"))
+        if amount <= 0:
+            print("Amount must be positive.")
+            return
+        balance = accounts_db[account]['balance']
+        if amount > balance:
+            print("Insufficient funds.")
+            return
+        accounts_db[account]['balance'] -= amount
+        print(f"Withdrew ${amount:.2f} successfully.")
+        log_transaction(account, "Withdrawal", amount)
+    except ValueError:
+        print("Invalid amount entered.")
+
+def transfer(account):
+    target_account = input("Enter target account number to transfer to: ").strip()
+    if target_account == account:
+        print("You cannot transfer to your own account.")
+        return
+    if target_account not in accounts_db:
+        print("Target account does not exist.")
+        return
+    try:
+        amount = float(input("Enter amount to transfer: $"))
+        if amount <= 0:
+            print("Amount must be positive.")
+            return
+        balance = accounts_db[account]['balance']
+        if amount > balance:
+            print("Insufficient funds.")
+            return
+        accounts_db[account]['balance'] -= amount
+        accounts_db[target_account]['balance'] += amount
+        print(f"Transferred ${amount:.2f} to account {target_account} successfully.")
+        log_transaction(account, "Transfer Sent", amount, target_account)
+        log_transaction(target_account, "Transfer Received", amount, account)
+    except ValueError:
+        print("Invalid amount entered.")
+
+def view_transaction_log():
+    print("\n--- Transaction Log ---")
+    if not transaction_log:
+        print("No transactions yet.")
+    else:
+        for entry in transaction_log:
+            print(entry)
+    print("-----------------------")
+
+def main():
+    current_account = authenticate()
+    while True:
+        show_menu()
+        choice = input("Enter your choice (1-6): ").strip()
+        if choice == '1':
+            check_balance(current_account)
+        elif choice == '2':
+            deposit(current_account)
+        elif choice == '3':
+            withdraw(current_account)
+        elif choice == '4':
+            transfer(current_account)
+        elif choice == '5':
+            view_transaction_log()
+        elif choice == '6':
+            print("Thank you for using the ATM. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please select a number between 1 and 6.")
+
+if __name__ == "__main__":
+    main()
