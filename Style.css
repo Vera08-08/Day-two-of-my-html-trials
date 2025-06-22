@@ -1,0 +1,31 @@
+*{
+    padding: 0px;
+    margin: 0px;
+}
+body{
+    background-color: #47b5ec;
+    
+}
+.name{
+    color:rgb(240, 240, 20);
+}
+#one{
+    font-size: 20px;
+}
+#two{
+    font-size: 20px;
+}
+nav{
+    display:flex;
+    justify-content: space-between;
+    background-color: white;
+    
+}
+.nav-links{
+    display: flex;
+    justify-content: space-between;
+    align-items: space-between;
+    gap: 50px;
+    text-decoration: none;
+    list-style: none;
+}
